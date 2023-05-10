@@ -16,10 +16,10 @@
                 />
             </div>
         </div>
-        <UiLoading v-if="pending" />
+        <UiLoading v-if="pending || isLoadingSearch" />
         <div v-else>
             <p
-                v-if="searchQuery && !results && !results?.length"
+                v-if="searchQuery && (!results || !results?.length)"
                 class="text-center text-2xl mt-20"
             >
                 No artists were found with the term: <span class="text-violet-500">{{ searchQuery }}</span>
@@ -43,6 +43,7 @@
     import useGraphQuery from '~/composables/useGraphQuery';
     import { Ref } from 'vue';
 
+    const isLoadingSearch = ref(false);
     const { searchQuery } = useGraphQuery();
     const results: Ref<any[]> = ref([]);
 
@@ -99,12 +100,13 @@
             results.value = data?.value?.artists;
             return;
         }
-        timeout = setTimeout(() => {
-            const { data, pending }: any = useLazyAsyncQuery(queryArtistName, {
+        timeout = setTimeout(async () => {
+            isLoadingSearch.value = true;
+            const { data: artists, pending }: any = await useAsyncQuery(queryArtistName, {
                 name: searchQuery.value,
             });
-            console.log(data?.value?.artists);
-            results.value = data?.value?.artists;
+            results.value = artists?.value?.artists;
+            isLoadingSearch.value = false;
         }, 500);
     });
 </script>
