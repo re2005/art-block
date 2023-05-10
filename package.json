@@ -1,5 +1,5 @@
 {
-    "name": "nuxt-app",
+    "name": "art-block",
     "private": true,
     "scripts": {
         "build": "nuxt build",
